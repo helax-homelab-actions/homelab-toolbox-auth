@@ -1,0 +1,28 @@
+name: Configure homelab toolbox access
+description: Configure Git access to the homelab toolbox repository
+
+inputs:
+  client-id:
+    description: GitHub App client ID
+    required: true
+  private-key:
+    description: GitHub App private key
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Create toolbox App token
+      id: app-token
+      uses: actions/create-github-app-token@v3
+      with:
+        client-id: ${{ inputs.client-id }}
+        private-key: ${{ inputs.private-key }}
+        owner: helax-homelab
+        repositories: homelab-toolbox
+        permission-contents: read
+    - name: Configure Git authentication
+      uses: helax-homelab-actions/git-url-auth@v1
+      with:
+        token: ${{ steps.app-token.outputs.token }}
+        repository: helax-homelab/homelab-toolbox
